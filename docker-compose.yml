@@ -1,0 +1,47 @@
+version: '3.6'
+services:
+
+  backend:
+    build:
+      dockerfile: ./Development.Dockerfile
+      context: ./
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 512mb
+    env_file: .dokcer.env
+    ports:
+      - "8000:3000"
+    restart: unless-stopped
+    volumes:
+      - ./src:/home/app/src
+      - ./prisma:/home/app/prisma
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:16.2-alpine3.19
+    env_file:
+      - .dokcer.env
+    shm_size: 128mb
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512mb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d eshop" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    ports:
+      - "5472:5432"
+    volumes:
+      - eshop-express-data:/var/lib/postgresql/data
+
+
+volumes:
+  eshop-express-data:
