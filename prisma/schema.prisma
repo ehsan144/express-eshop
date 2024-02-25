@@ -12,3 +12,39 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+enum UserRole {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+model User {
+  id         Int       @id @default(autoincrement())
+  username   String    @db.VarChar(50)
+  password   String    @db.VarChar(255)
+  email      String    @db.VarChar(50)
+  role       UserRole  @default(USER)
+  profile    Profile?
+  addresses  Address[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+model Profile {
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int      @unique
+  img          String?  @db.VarChar(50)
+  first_name   String?  @db.VarChar(50)
+  last_name    String?  @db.VarChar(50)
+  phone_number String?  @db.VarChar(13)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+}
+model Address {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  title      String   @db.VarChar(50)
+  address    String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
