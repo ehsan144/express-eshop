@@ -1,4 +1,8 @@
 import app from "./app";
+import dotenv from "dotenv";
+import log from "./utils/logger";
 
+dotenv.config();
 
-app.listen(3000)
+const server_port = process.env.SERVER_PORT || 3000
+app.listen(server_port, () => log.info(`[Server] listening on port ${server_port}`))

@@ -10,7 +10,7 @@ services:
         limits:
           cpus: "2"
           memory: 512mb
-    env_file: .dokcer.env
+    env_file: .dev.env
     ports:
       - "8000:3000"
     restart: unless-stopped
@@ -24,7 +24,7 @@ services:
   database:
     image: postgres:16.2-alpine3.19
     env_file:
-      - .dokcer.env
+      - .dev.env
     shm_size: 128mb
     deploy:
       resources:

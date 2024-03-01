@@ -33,5 +33,5 @@ USER app
 EXPOSE 3000/tcp
 ENV PATH="./scripts:/bin/$PATH"
 
-CMD ["yarn","run","dev"]
+CMD ["npm","run","dev"]
 #CMD ["development.sh"]

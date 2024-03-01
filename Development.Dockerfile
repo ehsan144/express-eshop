@@ -26,5 +26,5 @@ COPY  scripts ./scripts
 EXPOSE 3000/tcp
 ENV PATH="./scripts:/bin/$PATH"
 
-CMD ["yarn","run","dev"]
-#CMD ["development.sh"]
+
+CMD ["development.sh"]

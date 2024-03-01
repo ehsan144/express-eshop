@@ -24,27 +24,29 @@ enum Membership {
 }
 model User {
   id         Int        @id @default(autoincrement())
-  username   String     @db.VarChar(50)
+  username   String     @db.VarChar(50) @unique
   password   String     @db.VarChar(255)
-  email      String     @db.VarChar(50)
+  email      String     @db.VarChar(50) @unique
   role       UserRole   @default(USER)
-  membershup Membership @default(BRONZE)
+  membership Membership @default(BRONZE)
   profile    Profile?
   addresses  Address[]
   products   Product[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+
+  @@unique([username, email])
 }
 model Profile {
-  id           Int      @id @default(autoincrement())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int      @unique
-  img          String?  @db.VarChar(50)
-  first_name   String?  @db.VarChar(50)
-  last_name    String?  @db.VarChar(50)
-  phone_number String?  @db.VarChar(13)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int      @unique
+  imagePath   String?  @db.Text
+  firstName   String?  @db.VarChar(50)
+  lastName    String?  @db.VarChar(50)
+  phoneNumber String?  @db.VarChar(13)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 model Address {
   id        Int      @id @default(autoincrement())
@@ -60,7 +62,7 @@ model Product {
   title       String         @db.VarChar(50)
   slug        String         @db.VarChar(100)
   description String?        @db.Text
-  owner       User           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  owner       User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   ownerId     Int?
   images      ProductImage[]
   createdAt   DateTime       @default(now())

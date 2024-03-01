@@ -1,5 +1,5 @@
 #!/bin/sh
-yarn prisma generate \
-&&  yarn prisma migrate deploy \
-&&  yarn run dev
+npm run db:generate \
+&&  npm run db:deploy \
+&&  npm run dev
 
