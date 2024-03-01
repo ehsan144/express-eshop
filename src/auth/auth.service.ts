@@ -4,9 +4,9 @@ import {
     LoginUserModel,
     RefreshResultModel,
     RegisterUserModel,
-    UserModel,
+    AuthModel,
     VerifyResultModel
-} from "./user.model";
+} from "./auth.model";
 import {hashPassword, verifyPassword} from "../utils/pass.lib";
 import {createAccessToken, verifyAccessToken, refreshAccessToken} from "../utils/jwt.lib";
 import log from "../utils/logger";
@@ -29,10 +29,10 @@ const UserSelectQuery = {
 }
 
 
-class UserService {
+class AuthService {
 
 
-    async getAllUsers(): Promise<UserModel[]> {
+    async getAllUsers(): Promise<AuthModel[]> {
         return db.user.findMany(
             {
                 select: UserSelectQuery
@@ -40,7 +40,7 @@ class UserService {
         )
     }
 
-    async findUser(id: number): Promise<UserModel | null> {
+    async findUser(id: number): Promise<AuthModel | null> {
         return db.user.findUnique({
             select: UserSelectQuery,
             where: {
@@ -50,7 +50,7 @@ class UserService {
 
     }
 
-    async registerUser(user: RegisterUserModel): Promise<UserModel> {
+    async registerUser(user: RegisterUserModel): Promise<AuthModel> {
         return db.user.create({
             select: UserSelectQuery,
             data: {
@@ -147,4 +147,4 @@ class UserService {
     }
 }
 
-export {UserService};
+export {AuthService};

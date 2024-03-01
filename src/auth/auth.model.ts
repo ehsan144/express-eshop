@@ -11,7 +11,7 @@ export interface BaseUserModel {
 
 }
 
-export interface UserModel extends BaseUserModel {
+export interface AuthModel extends BaseUserModel {
     role: string;
     membership: string;
     profile: ProfileModel | null;
