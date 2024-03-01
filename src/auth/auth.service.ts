@@ -1,7 +1,7 @@
 import _ from "lodash";
 import db from "../utils/db.server";
-import {hashPassword, verifyPassword} from "../utils/pass.lib";
-import {createAccessToken, verifyAccessToken, refreshAccessToken} from "../utils/jwt.lib";
+import {hashPassword, verifyPassword} from "../utils/auth.pass";
+import {createAccessToken, verifyAccessToken, refreshAccessToken} from "../utils/auth.jwt";
 import {
     LoginResultModel,
     LoginUserModel,

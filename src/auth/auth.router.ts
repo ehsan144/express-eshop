@@ -1,4 +1,6 @@
+import _ from "lodash";
 import express from "express";
+import {PrismaClientKnownRequestError, PrismaClientValidationError} from "@prisma/client/runtime/library";
 import {AuthService} from "./auth.service";
 
 const userService = new AuthService()
@@ -27,23 +29,22 @@ authRouter.get("/:id", async (req, res) => {
 })
 authRouter.post("/register", async (req, res) => {
     try {
-        const user = await userService.registerUser({
-            username: req.body.username,
-            email: req.body.email,
-            password: req.body.password
-        })
+        const user = await userService.registerUser({..._.pick(req.body, ['username', 'password', 'email'])})
         if (user) return res.status(200).json(user)
         else return res.status(404).json({error: "User can not create"})
     } catch (e) {
-        return res.status(400).json({error: e as string})
+        if (e instanceof PrismaClientKnownRequestError) {
+            if (e.code === "P2002") return res.status(400).json({error: "a user already exists with this request"})
+            return res.status(400).json({error: e.message})
+        } else if (e instanceof PrismaClientValidationError) {
+            return res.status(400).json({error: "validation failed"})
+        }
+        return res.status(400).json({error: e})
     }
 })
 authRouter.post("/login", async (req, res) => {
     try {
-        const result = await userService.loginUser({
-            username: req.body.username,
-            password: req.body.password
-        })
+        const result = await userService.loginUser({..._.pick(req.body, ['username', 'password'])})
         return res.status(200).json(result)
     } catch (e) {
         return res.status(400).json({error: e as string})
