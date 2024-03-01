@@ -58,7 +58,7 @@ export function refreshAccessToken(refresh_token: string): Promise<JwtTokens> {
 
             const jwt_data = payload as RefreshToken
             jwt.sign({"userId": jwt_data.userId}, ACCESS_TOKEN_SECRET as string, {expiresIn: "1h"}, (error, access_token) => {
-                if (error) return reject(new httpError.Unauthorized());
+                if (error) return reject(new httpError.BadRequest());
                 return resolve({
                     access_token: access_token as string
                 });

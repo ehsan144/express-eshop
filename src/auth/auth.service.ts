@@ -1,4 +1,7 @@
+import _ from "lodash";
 import db from "../utils/db.server";
+import {hashPassword, verifyPassword} from "../utils/pass.lib";
+import {createAccessToken, verifyAccessToken, refreshAccessToken} from "../utils/jwt.lib";
 import {
     LoginResultModel,
     LoginUserModel,
@@ -7,143 +10,108 @@ import {
     AuthModel,
     VerifyResultModel
 } from "./auth.model";
-import {hashPassword, verifyPassword} from "../utils/pass.lib";
-import {createAccessToken, verifyAccessToken, refreshAccessToken} from "../utils/jwt.lib";
-import log from "../utils/logger";
-
-const UserSelectQuery = {
-
-    id: true,
-    username: true,
-    email: true,
-    role: true,
-    membership: true,
-    profile: {
-        select: {
-            firstName: true,
-            lastName: true,
-            phoneNumber: true,
-            imagePath: true
-        }
-    }
-}
 
 
 class AuthService {
 
+    private UserSelectQuery = {
+
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        membership: true,
+        profile: {
+            select: {
+                firstName: true,
+                lastName: true,
+                phoneNumber: true,
+                imagePath: true
+            }
+        }
+    }
 
     async getAllUsers(): Promise<AuthModel[]> {
         return db.user.findMany(
             {
-                select: UserSelectQuery
+                select: this.UserSelectQuery
             }
         )
     }
 
     async findUser(id: number): Promise<AuthModel | null> {
         return db.user.findUnique({
-            select: UserSelectQuery,
+            select: this.UserSelectQuery,
             where: {
                 id: id
             }
         });
-
     }
 
-    async registerUser(user: RegisterUserModel): Promise<AuthModel> {
+    async registerUser(data: RegisterUserModel): Promise<AuthModel> {
+
         return db.user.create({
-            select: UserSelectQuery,
+            select: this.UserSelectQuery,
             data: {
-                username: user.username,
-                email: user.email,
-                password: await hashPassword(user.password)
+                ..._.pick(data, ["username", "email"]),
+                password: await hashPassword(data.password)
             }
         });
+
     }
 
     async loginUser(data: LoginUserModel): Promise<LoginResultModel> {
-        try {
-            const user = await db.user.findUnique({
-                where: {
-                    username: data.username
-                },
-                select: {
-                    id: true,
-                    username: true,
-                    password: true
-                }
-            });
-            if (!user) {
-                return {
-                    error: "username or password is wrong"
-                }
-            }
-            const isVerifyUser = await verifyPassword(data.password, user.password);
-            if (!isVerifyUser) {
-                return {
-                    error: "username or password is wrong"
-                }
-            }
 
-            const tokens = await createAccessToken(user.id);
-            return {
-                error: false,
-                username: user.username,
-                access_token: tokens.access_token,
-                refresh_token: tokens.refresh_token,
+        const user = await db.user.findUnique({
+            where: {
+                username: data.username
+            },
+            select: {
+                id: true,
+                username: true,
+                password: true,
+                email: true,
+                role: true
             }
-        } catch (e) {
-            log.error(e)
-            return {
-                error: e as string
-            }
+        });
+        if (!user) {
+            throw new Error("username or password is wrong");
+        }
+        const isVerifyUser = await verifyPassword(data.password, user.password);
+        if (!isVerifyUser) {
+            throw new Error("username or password is wrong");
+        }
+
+        const tokens = await createAccessToken(user.id);
+        return {
+            ..._.pick(user, ["username", "email", "role"]),
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
         }
 
     }
 
     async verifyUser(access_token: string): Promise<VerifyResultModel> {
-        try {
-            const result = await verifyAccessToken(access_token)
-            const user = await this.findUser(result.userId)
-            if (!user) {
-                return {
-                    is_verified: false,
-                    error: false
-                }
-            }
+        const result = await verifyAccessToken(access_token)
+        const user = await this.findUser(result.userId)
+        if (!user) {
             return {
-                error: false,
-                is_verified: true,
-                username: user.username,
-                email: user.email
+                is_verified: false,
             }
-
-
-        } catch (e) {
-            log.error(e)
-            return {
-                error: e as string,
-                is_verified: false
-            }
+        }
+        return {
+            is_verified: true,
+            ..._.pick(user, ["username", "email"])
         }
 
     }
 
+
     async refreshToken(refresh_token: string): Promise<RefreshResultModel> {
-        try {
-            const result = await refreshAccessToken(refresh_token)
-            return {
-                error: false,
-                access_token: result.access_token
-            }
-
-        } catch (e) {
-            log.error(e)
-            return {
-                error: e as string,
-            }
+        const result = await refreshAccessToken(refresh_token)
+        return {
+            access_token: result.access_token
         }
-
     }
 }
 

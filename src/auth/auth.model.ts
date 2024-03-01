@@ -30,15 +30,14 @@ export interface LoginUserModel {
 export type LoginResultModel = {
     access_token?: string;
     refresh_token?: string;
-    error: string | false;
     username?: string;
+    email?: string;
+    role?: string;
 }
 export type RefreshResultModel = {
     access_token?: string;
-    error: string | false;
 }
 export type VerifyResultModel = {
-    error: string | false;
     is_verified: boolean;
     username?: string;
     email?: string;
