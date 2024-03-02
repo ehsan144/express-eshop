@@ -1,5 +1,8 @@
 import {compare, hash} from "bcrypt";
-import httpError from 'http-errors';
+import httpError from "http-errors";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export async function hashPassword(password: string): Promise<string> {
     return new Promise((resolve, reject) => {

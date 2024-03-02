@@ -1,22 +1,21 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import httpError from 'http-errors';
-import log from "./logger";
+import log from "../utils/logger";
+import {AccessToken, JwtTokens, RefreshToken} from "./auth.model";
 
 dotenv.config();
 
-const {ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET} = process.env
-if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-    log.error("[SERVER] No secret key found")
+
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET
+if (!REFRESH_TOKEN_SECRET || !ACCESS_TOKEN_SECRET) {
+    log.error("secret key isn't set");
     process.exit(1);
 }
 
-interface JwtTokens {
-    access_token: string
-    refresh_token?: string
-}
 
-export function createAccessToken(userId: number): Promise<JwtTokens> {
+export async function createAccessToken(userId: number): Promise<JwtTokens> {
     return new Promise((resolve, reject) => {
         jwt.sign({"userId": userId}, REFRESH_TOKEN_SECRET as string, {expiresIn: "1d"}, (error, refresh_token) => {
             if (error) reject(new httpError.BadRequest());
@@ -32,15 +31,8 @@ export function createAccessToken(userId: number): Promise<JwtTokens> {
 
 }
 
-interface AccessToken extends jwt.JwtPayload {
-    userId: number;
-}
 
-interface RefreshToken extends AccessToken {
-
-}
-
-export function verifyAccessToken(token: string): Promise<AccessToken> {
+export async function verifyAccessToken(token: string): Promise<AccessToken> {
     return new Promise((resolve, reject) => {
         jwt.verify(token, ACCESS_TOKEN_SECRET as string, (err, payload) => {
             if (err) {
@@ -51,7 +43,8 @@ export function verifyAccessToken(token: string): Promise<AccessToken> {
     });
 }
 
-export function refreshAccessToken(refresh_token: string): Promise<JwtTokens> {
+
+export async function refreshAccessToken(refresh_token: string): Promise<JwtTokens> {
     return new Promise((resolve, reject) => {
         jwt.verify(refresh_token, REFRESH_TOKEN_SECRET as string, (err, payload) => {
             if (err) return reject(new httpError.Unauthorized());
@@ -66,3 +59,6 @@ export function refreshAccessToken(refresh_token: string): Promise<JwtTokens> {
         });
     })
 }
+
+
+

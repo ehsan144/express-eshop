@@ -1,7 +1,7 @@
 import _ from "lodash";
 import db from "../utils/db.server";
-import {hashPassword, verifyPassword} from "../utils/auth.pass";
-import {createAccessToken, verifyAccessToken, refreshAccessToken} from "../utils/auth.jwt";
+
+
 import {
     LoginResultModel,
     LoginUserModel,
@@ -10,10 +10,11 @@ import {
     AuthModel,
     VerifyResultModel
 } from "./auth.model";
+import {hashPassword, verifyPassword} from "./auth.password";
+import {createAccessToken, refreshAccessToken, verifyAccessToken} from "./auth.jwt";
 
 
 class AuthService {
-
     private UserSelectQuery = {
 
         id: true,
@@ -30,6 +31,7 @@ class AuthService {
             }
         }
     }
+
 
     async getAllUsers(): Promise<AuthModel[]> {
         return db.user.findMany(

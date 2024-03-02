@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 export interface ProfileModel {
     firstName: string | null;
     lastName: string | null;
@@ -34,12 +36,27 @@ export type LoginResultModel = {
     email?: string;
     role?: string;
 }
+
 export type RefreshResultModel = {
     access_token?: string;
 }
+
 export type VerifyResultModel = {
     is_verified: boolean;
     username?: string;
     email?: string;
+
+}
+
+export interface JwtTokens {
+    access_token: string
+    refresh_token?: string
+}
+
+export interface AccessToken extends jwt.JwtPayload {
+    userId: number;
+}
+
+export interface RefreshToken extends AccessToken {
 
 }
