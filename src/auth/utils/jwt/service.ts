@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import httpError from 'http-errors';
-import log from "../utils/logger";
-import {AccessToken, JwtTokens, RefreshToken} from "./auth.model";
+import log from "../../../utils/logger";
+import {AccessToken, JwtTokens, RefreshToken} from "./model";
 
 dotenv.config();
 
