@@ -9,7 +9,7 @@ const options = {
             version: '1.0.0',
         },
     },
-    apis: ['./src/**/**.router.ts', './src/**/**.model.ts'],
+    apis: ['./src/**/router.ts', './src/**/models/*.ts'],
 };
 
 const openapiSpecification = swaggerJSDoc(options);

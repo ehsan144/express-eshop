@@ -7,9 +7,16 @@ import {findUser, registerUser, loginUser, verifyUser, getAllUsers, refreshToken
 const router = express()
 /**
  * @swagger
+ * tags:
+ *   - name: Auth
+ *     description: Auth services
+ *   - name: Accounts
+ *     description: Accounts
+ * @swagger
  * /api/auth/:
  *   get:
  *     summary: Get all users
+ *     tags : [Auth]
  *     responses:
  *       200:
  *         description: OK
@@ -30,7 +37,28 @@ router.get("/", async (req, res) => {
         return res.status(400).json({error: e as string})
     }
 })
-
+/**
+ * @swagger
+ * /api/auth/{id}:
+ *   get:
+ *     summary: Find a user
+ *     tags : [Auth]
+ *     parameters:
+ *       - name: id
+ *         description: Unique identifier of the user
+ *         in: path
+ *         required: true
+ *         type: int
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                  $ref: "#/components/schemas/Auth"
+ */
 router.get("/:id", async (req, res) => {
     try {
         const userId = parseInt(req.params.id, 10)
